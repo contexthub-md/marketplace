@@ -1,0 +1,9 @@
+{
+  "name": "ocxp",
+  "description": "Code intelligence powered by OCXP -- semantic search, topology, gap analysis, and guided codebase exploration",
+  "version": "1.0.0",
+  "author": {
+    "name": "ContextHub"
+  },
+  "repository": "https://github.com/bujoo/ocxp"
+}
