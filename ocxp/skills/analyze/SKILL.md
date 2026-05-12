@@ -19,12 +19,13 @@ If status shows stale files or missing entities, suggest running `ocxp_index` wi
 
 ### 2. Run targeted analysis
 
-Based on the focus area, run the relevant tools:
+Based on the focus area, run the relevant tools. Use `output_mode: "summary"` for initial triage, `"default"` for structured detail. This prevents overflow on large codebases.
 
 **Code quality** -- `ocxp_analyze`:
 - Categories: `"dead_code"`, `"legacy"`, `"anti_patterns"`, or `"all"`
 - Returns findings with confidence scores and file locations
 - Use `min_confidence` to filter noise (default 0.5)
+- Use `path_filter` to scope to a specific directory (e.g. `"src/api/"`)
 
 **Test quality** -- `ocxp_test_quality`:
 - Metrics: test density, structural coverage, mock detection, shallow test detection
@@ -58,10 +59,12 @@ Use `ocxp_references` on flagged entities to assess blast radius. Use `ocxp_comm
 
 | Analysis | Tool | Key params |
 |----------|------|------------|
-| Dead code | `ocxp_analyze` | `categories: "dead_code"` |
-| Anti-patterns | `ocxp_analyze` | `categories: "anti_patterns"` |
-| Legacy code | `ocxp_analyze` | `categories: "legacy"` |
-| Test coverage | `ocxp_test_quality` | (no required params) |
-| Research gaps | `ocxp_gap_analysis` | `mission_context` optional |
-| Naming rules | `ocxp_constraints` | (no required params) |
-| Index health | `ocxp_status` | (no required params) |
+| Dead code | `ocxp_analyze` | `categories: "dead_code"`, `output_mode`, `path_filter` |
+| Anti-patterns | `ocxp_analyze` | `categories: "anti_patterns"`, `output_mode`, `path_filter` |
+| Legacy code | `ocxp_analyze` | `categories: "legacy"`, `output_mode`, `path_filter` |
+| Test coverage | `ocxp_test_quality` | `output_mode`, `path_filter` |
+| Research gaps | `ocxp_gap_analysis` | `mission`, `output_mode`, `path_filter` |
+| Naming rules | `ocxp_constraints` | `scope`, `constraint_type` |
+| Index health | `ocxp_status` | `format: "json"` for machine-readable |
+| Subsystems | `ocxp_community` | `output_mode`, `max_output_chars` |
+| Infra security | `ocxp_analyze` | `categories: "infra_security"`, `output_mode` |

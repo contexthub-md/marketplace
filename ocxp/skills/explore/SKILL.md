@@ -21,7 +21,8 @@ Call `ocxp_warmup`. This returns the module tree, entry points, key types, and c
 - Route returns ordered waypoints with token-budgeted context
 - The response is self-sufficient -- you should NOT need follow-up calls
 - Use `mode: "modify"` for changes, `mode: "impact"` for blast radius, `mode: "comprehend"` (default) for understanding
-- Use `scope` to narrow to a subdirectory (e.g. `"src/api/"`)
+- Use `scope` to narrow to a subdirectory (e.g. `"src/api/"`) -- always combine with `focus_repo` to prevent cross-repo leakage (scope alone is a soft filter)
+- For blast radius, prefer `ocxp_references` on the entity over `mode: "impact"` -- references use graph edges while impact mode can pull in semantically similar but unrelated entities
 
 **For a concept** ("how does caching work", "error handling patterns"): Call `ocxp_search` with the concept.
 - Semantic search matches by meaning, not keywords
@@ -32,12 +33,14 @@ Call `ocxp_warmup`. This returns the module tree, entry points, key types, and c
 - `ocxp_zoom` on a specific entity for progressive detail (L0 -> L1 -> L2 -> L3)
 - `ocxp_entity` for a single entity's full UCU card with relationships
 - `ocxp_query` for advanced 5D navigation with intent detection (trace, impact, explain, locate)
+  - Use `output_mode: "default"` to keep output structured (~8K chars) or `"summary"` for metrics only
 
 ### 4. Analyze relationships
 
-- `ocxp_references` to find everything that calls/imports/uses an entity (impact analysis)
+- `ocxp_references` to find everything that calls/imports/uses an entity (the most precise blast radius tool)
 - `ocxp_glossary` to map domain terms to code types and struct definitions
-- `ocxp_topology` for service-level dependency maps
+- `ocxp_topology` for service-level dependency maps -- use `output_mode: "summary"` for large services
+- `ocxp_infra` for infrastructure topology -- use `output_mode: "default"` to prevent overflow on large infra graphs
 
 ### 5. Present findings
 

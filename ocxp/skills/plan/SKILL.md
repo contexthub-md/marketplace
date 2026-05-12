@@ -20,8 +20,9 @@ Call `ocxp_warmup` for codebase orientation -- module tree, entry points, key ty
 Call `ocxp_plan` with the request. This is the most efficient tool -- it combines route + spec in one call:
 - Returns ordered navigation waypoints AND a YAML implementation spec
 - Use `mode: "modify"` for implementation tasks (default: "comprehend")
-- Use `scope` to narrow to a subdirectory if the change is localized
-- Use `max_tokens` to control output size
+- Use `scope` to narrow to a subdirectory if the change is localized -- always combine with `focus_repo` to prevent cross-repo leakage
+- Use `output_mode: "default"` to keep output structured (~8K chars) and prevent overflow
+- Use `max_tokens` to control route token budget
 
 ### 2b. Validate references
 
@@ -50,6 +51,8 @@ Feed the full spec YAML from `ocxp_plan` into `ocxp_spec_compliance`:
 ```
 ocxp_spec_compliance(spec: "<the YAML spec string>", format: "markdown")
 ```
+
+**Important:** The `spec` parameter must contain actual YAML content with real newlines, not escaped strings (e.g. `\n`). If you get a YAML parse error, check that the YAML is passed as-is, not string-escaped.
 
 Review the score:
 - **100%**: proceed to context analysis
@@ -104,7 +107,7 @@ Present:
 - `ocxp_plan` replaces 5-10 manual query+entity chains -- start there
 - Always run `ocxp_spec_validate` after generating a plan -- LLMs hallucinate file paths
 - Always run `ocxp_spec_compliance` to verify the plan follows codebase rules
-- Use `mode: "impact"` when you need blast radius instead of implementation steps
+- Use `mode: "impact"` for broad blast radius analysis, but for precise impact use `ocxp_references` on the entity -- impact mode can pull in semantically similar but unrelated entities
 - For large changes, use `scope` to plan subsystem by subsystem
 - Check `ocxp_diff` after implementation to verify structural changes match the plan
 - The full pipeline: `ocxp_plan` -> `ocxp_spec_validate` -> `ocxp_spec_compliance` -> implement -> `ocxp_plan_validate`
