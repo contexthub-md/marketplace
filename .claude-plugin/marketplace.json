@@ -1,6 +1,6 @@
 {
   "name": "contexthub-marketplace",
-  "description": "OCXP code intelligence plugin for Claude Code",
+  "description": "ContextHub plugins for Claude Code -- code intelligence and project management",
   "owner": {
     "name": "ContextHub"
   },
@@ -10,6 +10,12 @@
       "description": "Code intelligence powered by OCXP -- semantic search, topology, gap analysis, and guided codebase exploration",
       "version": "1.0.0",
       "source": "./ocxp"
+    },
+    {
+      "name": "contexthub",
+      "description": "ContextHub Brain -- project management, missions, context discovery, and knowledge base tools",
+      "version": "1.0.0",
+      "source": "./contexthub"
     }
   ]
 }

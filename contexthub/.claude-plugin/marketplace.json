@@ -1,0 +1,15 @@
+{
+  "name": "contexthub-marketplace",
+  "description": "ContextHub Brain -- project management, missions, and context discovery",
+  "owner": {
+    "name": "ContextHub"
+  },
+  "plugins": [
+    {
+      "name": "contexthub",
+      "description": "ContextHub Brain -- project management, missions, context discovery, and knowledge base tools",
+      "version": "1.0.0",
+      "source": "./"
+    }
+  ]
+}

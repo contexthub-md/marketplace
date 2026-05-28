@@ -1,0 +1,9 @@
+{
+  "name": "contexthub",
+  "description": "ContextHub Brain -- project management, missions, context discovery, and knowledge base tools for development workflows",
+  "version": "1.0.0",
+  "author": {
+    "name": "ContextHub"
+  },
+  "repository": "https://github.com/Sonic-Web-Dev/contexthub-marketplace"
+}

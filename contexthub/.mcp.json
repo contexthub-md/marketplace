@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "contexthub": {
+      "type": "http",
+      "url": "${CONTEXTHUB_API_URL:-https://dev-api.contexthub.md}/mcp"
+    }
+  }
+}
