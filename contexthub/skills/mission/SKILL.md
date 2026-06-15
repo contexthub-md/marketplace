@@ -39,6 +39,15 @@ Call `ch_update_mission` to:
 - Set `progress`: 0-100 percentage
 - Update `priority` or add `notes`
 
+### Record Decisions
+
+When important decisions are made during mission work, persist them with `ch_record_decision`:
+- `content`: the decision text
+- `decision_type`: architecture, scope, priority, technical, process
+- `mission_id`: links the decision to the mission
+
+Recorded decisions are searchable across future sessions via `ch_search_memory`.
+
 ## Examples
 
 ```

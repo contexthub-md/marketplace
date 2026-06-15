@@ -19,14 +19,18 @@ Call `ch_get_compass` with the project ID. This returns:
 - **Open memos**: Issues and findings that need attention
 - **Health summary**: Whether the project needs attention
 
-### 2. Drill Down
+### 2. Code Health (if OCXP is available)
+
+Call `ch_ocxp_health` to check index status and code quality metrics. Report any staleness or issues.
+
+### 3. Drill Down
 
 Based on the compass, investigate further:
 - `ch_get_mission` for details on any concerning mission
 - `ch_list_memos` to review open issues
 - `ch_discover_context` to search for specific context
 
-### 3. Take Action
+### 4. Take Action
 
 - `ch_create_memo` to flag new issues
 - `ch_update_mission` to update progress
