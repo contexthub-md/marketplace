@@ -25,35 +25,11 @@ Given: "$ARGUMENTS" (SOP action or topic)
 
 ### Create an SOP
 
-Call `ch_create_sop` with:
-- `title`: Clear, action-oriented name (e.g. "Deploy to Production")
-- `content`: Full markdown with numbered steps, commands, and verification checks
-- `category`: process, architecture, testing, infrastructure, security, general
-- `priority`: 0-100 (higher = more relevant in agent context, default 50)
-- `auto_include`: true to automatically include in agent context
-- `depends_on`: comma-separated file paths the SOP references (enables staleness tracking)
+For quick creation, call `ch_create_sop` directly with title, content, and category.
 
-Write SOPs in this structure:
-```markdown
-# [Title]
+For **high-quality, research-backed SOPs**, use `/contexthub:sop-writer <topic>` instead -- it researches the codebase via OCXP, validates every step, and follows a structured template with tool annotations, expected outputs, and troubleshooting tables.
 
-## Overview
-One paragraph explaining what this procedure does and when to use it.
-
-## Prerequisites
-- What must be true before starting
-
-## Steps
-1. First step with exact commands
-2. Second step with verification
-3. ...
-
-## Verification
-How to confirm the procedure succeeded.
-
-## Rollback
-What to do if something goes wrong.
-```
+You can also dispatch the `contexthub:sop-writer` agent autonomously for batch SOP creation.
 
 ### List SOPs
 
