@@ -50,8 +50,8 @@ SOPs track `depends_on` file paths. When referenced code changes, the SOP is aut
 ## Examples
 
 ```
-/contexthub:sop create deployment guide for production releases
 /contexthub:sop list
 /contexthub:sop read deploy-to-production
-/contexthub:sop create incident response runbook for API outages
+/contexthub:sop-writer deployment guide for production releases
+/contexthub:sop-writer incident response runbook for API outages
 ```
