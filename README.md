@@ -35,7 +35,7 @@ Project management and context discovery plugin powered by ContextHub Brain API.
 ## Installation
 
 ```bash
-claude plugin add Sonic-Web-Dev/contexthub-marketplace
+claude plugin add contexthub-md/contexthub-marketplace
 ```
 
 ## Requirements
