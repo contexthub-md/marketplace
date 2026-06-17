@@ -113,6 +113,13 @@ On approval, save with `ch_create_sop`:
 - `auto_include`: true for procedures agents should always know about, false for reference-only
 - `depends_on`: comma-separated file paths collected during research
 - `prompt`: one-line guardrail for agents following this SOP (e.g., "Always verify health before and after")
+- `metadata`: JSON string linking the SOP to repos and environments. Always include this:
+  ```json
+  {"repos": ["owner/repo"], "audience": "both", "environments": ["dev", "prod"]}
+  ```
+  - `repos` (required): which repositories this SOP applies to. Use `owner/repo` format matching `ch_list_projects` repo IDs.
+  - `audience` (required): `"agents"` (machine-only), `"humans"` (manual only), or `"both"`
+  - `environments` (optional): which environments the procedure covers: `"dev"`, `"prod"`, `"localstack"`
 
 After saving, confirm the SOP ID and tell the user it will appear in `ch_get_memory_context` if auto_include is true.
 
@@ -127,6 +134,8 @@ Before saving, verify the SOP meets these criteria:
 - [ ] Rollback section exists with recovery steps
 - [ ] Troubleshooting table covers at least 2 common issues
 - [ ] depends_on includes all referenced files
+- [ ] metadata.repos lists all referenced repositories
+- [ ] metadata.audience is set (agents, humans, or both)
 
 ## Examples
 

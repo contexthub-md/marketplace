@@ -47,6 +47,25 @@ Call `ch_read_sop(sop_id)` to get the full markdown content of a specific SOP.
 
 SOPs track `depends_on` file paths. When referenced code changes, the SOP is automatically marked as **stale** so it can be refreshed.
 
+## Metadata Standard
+
+Always include metadata when creating SOPs to link them to repos and environments:
+
+```
+ch_create_sop(
+  ...,
+  metadata='{"repos":["sonic-web-dev/contexthub-brain"],"audience":"both","environments":["dev","prod"]}'
+)
+```
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| `repos` | Yes | string[] | Repositories this SOP applies to (`owner/repo` format) |
+| `audience` | Yes | string | `"agents"`, `"humans"`, or `"both"` |
+| `environments` | No | string[] | `"dev"`, `"prod"`, `"localstack"` |
+
+Agents use metadata to find the right SOP for their context. Always set `repos` to the specific repos the SOP references.
+
 ## Examples
 
 ```
