@@ -120,6 +120,8 @@ On approval, save with `ch_create_sop`:
   - `repos` (required): which repositories this SOP applies to. Use `owner/repo` format matching `ch_list_projects` repo IDs.
   - `audience` (required): `"agents"` (machine-only), `"humans"` (manual only), or `"both"`
   - `environments` (optional): which environments the procedure covers: `"dev"`, `"prod"`, `"localstack"`
+  - `triggers` (optional): SOP IDs to run after this SOP completes (chain forward)
+  - `after` (optional): SOP ID that must run before this one (chain backward)
 
 After saving, confirm the SOP ID and tell the user it will appear in `ch_get_memory_context` if auto_include is true.
 

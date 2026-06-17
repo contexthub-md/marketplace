@@ -63,8 +63,20 @@ ch_create_sop(
 | `repos` | Yes | string[] | Repositories this SOP applies to (`owner/repo` format) |
 | `audience` | Yes | string | `"agents"`, `"humans"`, or `"both"` |
 | `environments` | No | string[] | `"dev"`, `"prod"`, `"localstack"` |
+| `triggers` | No | string[] | SOP IDs to run after this SOP completes (chain forward) |
+| `after` | No | string | SOP ID that must run before this one (chain backward) |
 
 Agents use metadata to find the right SOP for their context. Always set `repos` to the specific repos the SOP references.
+
+### SOP Chaining
+
+Use `triggers` and `after` to create SOP chains. After completing an SOP, agents check `triggers` and auto-start the next SOP in the chain.
+
+Example: Deploy to Production triggers Post-Release Notes:
+```
+deploy-to-production:  {"triggers": ["post-release-notes"]}
+post-release-notes:    {"after": "deploy-to-production"}
+```
 
 ## Examples
 
