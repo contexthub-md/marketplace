@@ -1,6 +1,6 @@
 ---
 name: discover
-description: Smart context discovery -- search project knowledge bases using semantic search or RAG. Use when you need to find relevant code, docs, or project context. Also use when the user asks about how something works in their project, needs documentation, or wants to search across repos.
+description: General semantic search / RAG over THIS project's knowledge base (indexed repos + docs). Use when you need to find relevant code, docs, or project context, or the user asks how something works in their project. Lane vs siblings -- use `/contexthub:kb` instead for our specific indexed reference/library repos (Strands, EMQX, etc.); use `/contexthub:research` instead for multi-source incl. external library docs (Context7) and the web (Tavily); use `ch_search_memory` instead to recall past decisions.
 ---
 
 # Context Discovery with ContextHub
