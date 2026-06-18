@@ -1,6 +1,6 @@
 ---
 name: research
-description: Multi-source research across project KB, library docs (Context7), and web (Tavily) -- all through ContextHub. Use when the user needs to research a topic, find documentation, compare approaches, look up API references, or says "research this", "find docs for", "what does the internet say about", "look up", or "how does X work". Also use when you need to gather information from multiple sources before implementing something.
+description: BROADEST research -- multi-source across project KB + EXTERNAL library docs (Context7) + the WEB (Tavily), all through ContextHub. Use when the user needs to research a topic across sources, compare approaches, look up external/library API references, or says "research this", "find docs for", "what does the internet say about", "look up". Lane vs siblings -- use `/contexthub:kb` instead when it's purely our own indexed reference repos; use `/contexthub:discover` for general project-only knowledge search.
 ---
 
 # Multi-Source Research with ContextHub

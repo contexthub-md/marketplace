@@ -1,6 +1,6 @@
 ---
 name: kb
-description: Navigate and query project knowledge base docs -- search reference repos (Strands, EMQX, AG-UI, etc.), get RAG-powered answers, and cross-reference documentation with code. Use when the user asks about library APIs, framework patterns, protocol specs, configuration guides, or says "check the docs", "what do the docs say", "how does X work according to the docs", "find in the knowledge base", "KB search", or wants to understand a library/framework used in their project.
+description: Navigate and query the project's OWN indexed reference repos (Strands, EMQX, AG-UI, etc.) -- RAG answers + cross-reference docs with code. Use when the user asks about library APIs, framework patterns, protocol specs, configuration guides, or says "check the docs", "what do the docs say", "find in the knowledge base", "KB search". Lane vs siblings -- use `/contexthub:research` instead when you need EXTERNAL library docs (Context7) or the web; use `/contexthub:discover` for general project-knowledge search not tied to reference repos.
 ---
 
 # Project Knowledge Base Navigator
