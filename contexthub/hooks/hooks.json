@@ -1,0 +1,33 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"ContextHub memory is available. Before substantial work, call ch_get_lessons to load error patterns, skill stats, and prompt effectiveness learned from prior sessions. When something is worth remembering across sessions (a failure and its fix, an approach that worked or did not), call ch_log_outcome so future sessions learn from it.\"}}'"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "mcp_tool",
+            "server": "contexthub",
+            "tool": "ch_log_outcome",
+            "input": {
+              "kind": "error",
+              "summary": "Tool ${tool_name} failed",
+              "details": {
+                "category": "${tool_name}",
+                "root_cause": "${tool_response}"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

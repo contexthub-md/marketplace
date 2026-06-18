@@ -50,6 +50,13 @@ This repository has **two faces**:
 ### MCP tools (all clients)
 Project and mission management, context discovery, document CRUD, knowledge base, and 26 OCXP code intelligence tools (route, search, plan, analyze, topology, constraints, references, and more). Call `ch_get_memory_context` first to orient.
 
+### Hooks -- cross-session learning (Claude Code)
+Installed with the plugin and active automatically. They close the learning loop so the agent improves across sessions:
+- **SessionStart** -- reminds the agent to call `ch_get_lessons` (load error patterns, skill stats, and prompt effectiveness learned from prior runs) before substantial work.
+- **PostToolUseFailure** -- when a tool call fails, automatically calls `ch_log_outcome` to capture the failure so future sessions learn from it.
+
+The matching MCP tools work on every client: `ch_get_lessons` (read learned lessons) and `ch_log_outcome` (capture an error+fix, skill result, or prompt outcome). On non-Claude-Code clients, call them manually -- the hooks just automate them. Lessons are populated by AgentCore missions and by `ch_log_outcome`; extraction is asynchronous, so a freshly logged outcome surfaces in `ch_get_lessons` a few minutes later.
+
 ## Install
 
 ### Claude Code (full plugin: skills + agents + tools)

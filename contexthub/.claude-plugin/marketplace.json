@@ -8,7 +8,7 @@
     {
       "name": "contexthub",
       "description": "ContextHub Brain -- project management, missions, context discovery, and knowledge base tools",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "source": "./"
     }
   ]
