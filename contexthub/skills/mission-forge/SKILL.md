@@ -69,6 +69,15 @@ Each doc is `{path, content}`. Reference these docs from tasks (type `RESEARCH`/
 - `depends_on` -- express dependencies by task order/label, NOT by invented IDs (see Tips).
 - `execution_target` -- `{kind: "pool" | "direct" | "person", ...}`.
 
+**Testing discipline (mandatory in every code-touching task spec)** -- when a todo creates or changes an endpoint, MCP tool, or any behavioral code, its `spec.constraints` MUST require the owning agent to:
+
+1. **Respect the existing test structure.** Add a clean new regression test OR adjust the existing tests -- match the project's test layout and conventions. Never leave an endpoint, tool, or behavior untested.
+2. **Prove each behavioral claim RED then GREEN.** Every behavioral claim needs a test that fails BEFORE the change and passes AFTER it; the task must state the before/after evidence. A test written after the fix that never ran red is not evidence.
+3. **Consult the testing SOPs FIRST.** Before writing tests, call `ch_list_sops` and `ch_read_sop` for the relevant ones (e.g. `definition-of-done-dev-dogfood`, `release-readiness-gate`, `pre-deploy-regression`, `api-contract-sync`) to learn the actual test flow. Do not act from memory on test or deploy flow. Cite the SOP as a `DOC` reference on the task.
+4. **Cover new MCP tools and REST endpoints in `api-tests`.** For a new MCP tool or REST endpoint specifically, register/cover it in the project's `api-tests` system (release scorecard tool sweep + hurl contract coverage) IN ADDITION TO unit tests -- not instead of them.
+
+Write these as explicit `constraints` and `edge_cases` on each affected todo so the requirement travels with the task, and add a dedicated test/verification todo (`role: "test"`, `depends_on` the implementation) where the coverage is substantial.
+
 ### 7. Assign agents and worktrees inside the tasks
 
 For each todo, encode WHO runs it and WHERE it develops:
@@ -127,5 +136,6 @@ Agents search their own changes with `ch_ocxp_grep(pattern=..., branch=...)` / `
 - One owner per FILE per worktree. Two agents editing the same file concurrently will collide -- serialize with `depends_on` or split the file boundary.
 - Match model to cognitive demand in each task: Opus for architecture/review, Sonnet for spec-driven code, Haiku for mechanical work.
 - Research docs are load-bearing: every task should reference at least one `RESEARCH`/`DOC` and one `SPEC`/`FILE`. A task with no references is under-specified.
+- Every code-touching task carries testing discipline in its `constraints`: existing test structure respected, each behavioral claim RED-before/GREEN-after with stated evidence, testing SOPs (`ch_list_sops`/`ch_read_sop`) consulted first, and new MCP tools/REST endpoints covered in `api-tests` (scorecard sweep + hurl contract) on top of unit tests.
 - Pass `project_id` and `workspace` on every call, including the final `ch_create_mission_with_plan`.
 - Run `ch_ocxp_diff` per agent branch after implementation to verify the structural change matches the task spec.
