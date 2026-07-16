@@ -9,6 +9,11 @@ Turn an idea into a complete, executable ContextHub mission. This skill runs the
 
 Where `/contexthub:plan` produces a plan you read, and `/contexthub:mission` creates an empty mission shell, mission-forge does both and more: it emits a fully-specced, dependency-ordered, agent-assigned mission that a team can start executing immediately.
 
+There are TWO ways to land a mission, and you pick one per mission (they are mutually exclusive -- see the warning in step 8):
+
+- **Mode 1 -- Simple / on-the-spot (default).** You research and author the plan yourself, then land it settled and execute-ready in one call with `ch_create_mission_with_plan`. This is the whole workflow below and is the right path when you can already specify the phases and tasks with confidence.
+- **Mode 2 -- Complex / AgentCore-generated.** You write a rich mission description and let AgentCore do the research, write the docs, and generate the phased Weaver plan. Use this when the mission is large, fuzzy, or needs deep research before anyone can name the tasks. See "Mode 2" below.
+
 ## Prerequisites
 
 An active project with indexed repositories is required. If you get `OCXP_UNAVAILABLE` or `NO_PROJECT`, run `/contexthub:connect` first. Research still works without OCXP, but you cannot validate references or assess blast radius -- do not forge a mission on an unindexed project.
@@ -16,6 +21,15 @@ An active project with indexed repositories is required. If you get `OCXP_UNAVAI
 ## Workflow
 
 Given: "$ARGUMENTS" (an idea, feature request, refactor goal, or problem statement)
+
+### 0. Choose the mode
+
+After orienting (step 1) and enough OCXP review to judge scope, decide which mode fits:
+
+- **Can you already specify the phases and tasks with confidence after OCXP review?** -> **Mode 1**: author the plan yourself and land it with `ch_create_mission_with_plan` (execute-ready). Follow steps 1--9.
+- **Is it large, fuzzy, or does it need deep research first?** -> **Mode 2**: create the mission with a rich description and move it to `approved` so AgentCore generates the plan. Follow steps 1--4 to ground yourself, then jump to "Mode 2".
+
+Mode 1 is the default and the bulk of this skill. The steps below are Mode 1 unless noted.
 
 ### 1. Connect and orient
 
@@ -101,6 +115,10 @@ ch_create_mission_with_plan(
 
 Returns `{mission_id, doc_paths, plan_version, phase_count, todo_count}`. Report these back to the user. The tool assigns canonical `P{n}` / `P{n}.{m}` task IDs and remaps your loose `depends_on` -- so the IDs in the result are authoritative.
 
+This lands the mission at status `execute` with the Weaver plan marked `ready` -- it is settled and ready to run. It does NOT trigger AgentCore generation: because you authored the plan, there is nothing to "process." Point the team straight at execution (step 9).
+
+**WARNING -- the modes are mutually exclusive per mission.** Never call `ch_create_mission_with_plan` and then move the same mission to `approved`. Setting status `approved` fires the AgentCore pipeline, which regenerates and OVERWRITES your hand-authored plan. If you authored the plan here, leave it at `execute` and run it. If you want AgentCore to generate the plan, use Mode 2 from the start and do NOT hand-author.
+
 ### 9. Set up worktrees
 
 After creation, the branches `mission/{mission_id}` are auto-created on all linked repos (see `/contexthub:mission-dev`). Give the per-agent worktree commands:
@@ -118,6 +136,20 @@ ch_trigger_index(branch="mission/{mission_id}/<role>-<n>")
 ```
 
 Agents search their own changes with `ch_ocxp_grep(pattern=..., branch=...)` / `ch_ocxp_search(query=..., branch=...)` before merging up to `mission/{mission_id}`, which PRs to `main`.
+
+## Mode 2 -- complex / AgentCore-generated
+
+Use this when the mission is large, fuzzy, or under-specified -- when you want AgentCore to do the research, write the mission docs, and GENERATE the phased Weaver plan rather than authoring it by hand. Do NOT hand-author the plan in this mode.
+
+Still do steps 1--4 first: connect, research, and review the codebase enough to write a strong, well-grounded description. The quality of what AgentCore generates is bounded by the description you give it -- invest here rather than in task specs.
+
+1. **Create the mission with a rich description.** Call `ch_create_mission(title, description, project_id, workspace, priority, goals=[...])`. Make the `description`/`explanation` thorough: the problem, the desired outcome, the constraints, the relevant repos and areas of the codebase, and any OCXP findings or references you gathered in steps 2--4. Include the SMART goals. This description is the brief AgentCore researches against.
+
+2. **Move it through the lifecycle to trigger generation.** Set the mission status to `review`, then to `approved`, via `ch_update_mission(mission_id, status="approved", ...)`. Setting status `approved` is what fires the AgentCore pipeline (`prepare_weaver_plan`): it gathers context, researches, writes the mission docs, and generates the phased Weaver plan.
+
+3. **Run and review.** After generation, the plan can be run/executed via AgentCore and viewed in Obsidian. Review the generated docs and plan before execution.
+
+Do NOT also call `ch_create_mission_with_plan` for this mission -- that is Mode 1, and mixing the two overwrites work (see the warning in step 8).
 
 ## Examples
 
@@ -138,4 +170,5 @@ Agents search their own changes with `ch_ocxp_grep(pattern=..., branch=...)` / `
 - Research docs are load-bearing: every task should reference at least one `RESEARCH`/`DOC` and one `SPEC`/`FILE`. A task with no references is under-specified.
 - Every code-touching task carries testing discipline in its `constraints`: existing test structure respected, each behavioral claim RED-before/GREEN-after with stated evidence, testing SOPs (`ch_list_sops`/`ch_read_sop`) consulted first, and new MCP tools/REST endpoints covered in `api-tests` (scorecard sweep + hurl contract) on top of unit tests.
 - Pass `project_id` and `workspace` on every call, including the final `ch_create_mission_with_plan`.
+- Pick ONE mode per mission. Mode 1 (`ch_create_mission_with_plan`) lands execute-ready with your hand-authored plan and skips AgentCore. Mode 2 (rich description -> `ch_update_mission` status `approved`) lets AgentCore generate the plan. Never move a Mode 1 mission to `approved` -- it regenerates over your plan.
 - Run `ch_ocxp_diff` per agent branch after implementation to verify the structural change matches the task spec.
