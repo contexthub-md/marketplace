@@ -28,6 +28,19 @@
           }
         ]
       }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/worktree-concierge.sh\"",
+            "timeout": 30,
+            "async": true,
+            "statusMessage": "Worktree concierge: auditing worktrees"
+          }
+        ]
+      }
     ]
   }
 }
