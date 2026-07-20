@@ -1,10 +1,9 @@
 {
   "name": "contexthub",
   "description": "ContextHub Brain -- project management, missions, context discovery, and knowledge base tools for development workflows",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": {
     "name": "ContextHub"
   },
-  "repository": "https://github.com/contexthub-md/marketplace",
-  "hooks": "./hooks/hooks.json"
+  "repository": "https://github.com/contexthub-md/marketplace"
 }
