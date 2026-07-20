@@ -75,6 +75,14 @@ Every non-trivial mission follows this shape (exemplar:
    "goal achieved" from being self-declared.
 3. **P1+ implement (role: rust-dev / frontend-dev, model: Sonnet, `blocked_by: [P0]`).** Achieve the
    acceptance criteria, implementing against the signed-off doc. Ends `cargo check` green + commit.
+4. **Deploy + dogfood as its OWN phase, gated behind all code landing (`blocked_by:` every
+   implement phase).** If any acceptance criterion needs a LIVE dev deploy to verify (e.g.
+   "dogfood C1/C2 on dev"), do NOT attach it to the implement todos. Give it a separate phase that
+   runs once, after all code is merged to dev. Otherwise each fix triggers its own PR -> merge ->
+   redeploy cycle and the mission cascades PRs mid-run (weaver-02d2080b interleaved implement with
+   dogfood and cascaded four PRs, 286-289, each with a redeploy + a human wait). One deploy cycle
+   at the end is cheaper and clearer. (See the runtime "batch the deploy" principle -- the plan is
+   where you make it structurally impossible to interleave.)
 
 ## Model-tier discipline (budget) -- assign per todo by altitude
 
