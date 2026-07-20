@@ -61,6 +61,35 @@ a hardware PASS. Friction correlated with rigidity; good judgment correlated wit
   need tight, specific constraints -- goal-latitude there risks wandering onto the wrong account.
   Hybrid, tilted goal-ward.
 
+## Mixed development: goal-based vs task-based phases (declare `completion` per phase)
+
+Every phase declares HOW it proves done, via `completion` (default `task_list` = today's behavior):
+
+- **`completion: goal_gated`** -- the phase is done ONLY when its Definition-of-Done gate passes.
+  Use for outcome-shaped work ("the roll-up Lambda corrects drift on dev"). Write a REQUIRED `goal`
+  plus `acceptance_criteria` where each item is, wherever possible, **machine-verifiable** (a command
+  + expected exit, a file check, a commit-ancestor) -- not prose the agent grades itself on. The
+  engine runs the gate; the agent CANNOT self-declare the phase complete.
+- **`completion: task_list`** -- the phase is done when all its todos are individually complete on
+  their own evidence (`report_todo_complete` commit gate). Use for concrete, known-shape work
+  (a docs phase, a mechanical refactor with a fixed edit list).
+
+**Why the split (live-observed):** self-graded "done" is how `weaver-02d2080b` reported complete
+while its dogfood-on-dev criteria were never verified. Goal-gated phases make "done" provable, not
+asserted. Declare the style explicitly -- do not rely on inference (a task-list phase may still
+carry a descriptive goal).
+
+**A single phase mixes todo types** regardless of style. The types are existing fields, not a new
+`kind`: standard todo (default); a **test** todo = a todo whose acceptance item is a run command;
+**hitl** = `ownership_type: human` (statically human-owned) or a todo the agent marks `blocked`
+at runtime via `request_human_assist` (surfaces the "action needed" + alarms); **weaved** =
+`task_type: weaved` (simplify/coderabbit/push).
+
+**`/goal` DRIVES, the gate DECIDES.** Encourage the PM to use Claude Code's `/goal` to keep
+converging toward the acceptance criteria without re-prompting -- but `/goal` reads the transcript,
+so it is a convergence aid ONLY. The machine DoD gate is the sole authority on completion; a phase
+advances (pull next task from inbox) only when the gate passes, else it returns to the work.
+
 ## The proven phase pattern: design -> human checkpoint -> implement
 
 Every non-trivial mission follows this shape (exemplar:
@@ -116,10 +145,14 @@ phases:
     name: "..."
     order: 1
     blocked_by: []             # phase-level gate
+    completion: goal_gated     # goal_gated | task_list (default task_list)
     goal: >
-      The OUTCOME, in prose.
-    acceptance_criteria:
-      - "How we know the goal is met -- observable, checkable."
+      The OUTCOME, in prose. REQUIRED for goal_gated phases.
+    acceptance_criteria:       # DoD. Each item prose OR machine-verifiable:
+      - "Prose fallback: human/agent-judged criterion."
+      - { check: command, run: "make predeploy-check", expect_exit: 0 }
+      - { check: file_contains, path: "src/x.rs", contains: "fn foo" }
+      - { check: commit_ancestor, repo: "contexthub-brain" }   # like report_todo_complete
     references:
       - "file.rs: starting hint the PM verifies, NOT a step"
     todos:
