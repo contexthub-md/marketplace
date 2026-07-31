@@ -167,10 +167,24 @@ phases:
 ```
 
 ### Brain-landed (`ch_create_mission_with_plan`)
-`phases: [{ name, todos: [{ role, description, repo_id, repo_branch, spec:{...}, references:[...],
-depends_on:[...] }] }]`. Structured `spec` maps to `TodoSpec` (name/location/summary/inputs/outputs/
-behavior/constraints/edge_cases/references). `execution_mode` is carried through
+
+**Read `../mission-forge/references/mission-plan-schema.md` before writing the payload.** It is the
+code-verified field list for phases, todos, `spec`, `dod_gate`, and `ch_edit_mission_plan`, plus the
+silent-drop behaviours you cannot see from the response. The local YAML above and the Brain payload
+are NOT the same shape -- most notably the machine checks live in `dod_gate` (Brain) rather than
+inline in `acceptance_criteria` (which is prose-only on the Brain side).
+
+`phases: [{ name, goal, acceptance_criteria, completion, dod_gate, depends_on,
+todos: [{ role, description, repo_id, repo_branch, task_type, ownership_type, spec:{...},
+depends_on:[...] }] }]`. Structured `spec` maps to `TodoSpec` (name/location/spec_type/summary/inputs/
+outputs/behavior/constraints/edge_cases/references) and drops any other key without erroring;
+`references` are typed objects and belong INSIDE `spec`. `execution_mode` is carried through
 `load_from_plan_state` (verified: loader.rs deserializes `execution_mode: "manager"`).
+
+Traps that cost a mission each: `dod_gate` command is `{"check": "command", "run": "..."}` -- `command`
+as the field name fails validation, and the failure orphans an already-created planless mission. Phase
+ids are assigned `P{n}` by position, so any `id` you pass is ignored. A todo without `repo_id`
+silently inherits the project's FIRST linked repo.
 
 ## Execution model the plan depends on (so author to fit it)
 
@@ -202,7 +216,12 @@ Given: `$ARGUMENTS` (a goal, roadmap item, spec path, or "mission N of <roadmap>
    - Dogfood/full-flow: `ch_create_mission_with_plan(title, phases, project_id, scope, priority)`,
      then trigger execution (`mission_action(mid, "execute")` via the frontend, or the Kanban).
    - Fast local: write `plans/<date>-<slug>.yaml` and `start_mission(path)`.
-6. **Record the decision.** `ch_record_decision(mission_id, decision_type="process")` capturing why
+6. **Read the plan back before declaring it landed.** `ch_get_mission_plan(mission_id, detail="full")`
+   -- verify phase/todo counts, that each phase carries the `blocked_by` you intended, and that the
+   specs still hold their content. Repair in place with `ch_edit_mission_plan` (partial `updates` are
+   safe), but it cannot touch `goal`, `acceptance_criteria`, `completion`, `dod_gate`, or a todo's
+   `repo_id` -- those mean recreating the mission.
+7. **Record the decision.** `ch_record_decision(mission_id, decision_type="process")` capturing why
    the plan is shaped this way, so the dogfood loop accrues memory.
 
 ## Pre-land checklist
@@ -216,6 +235,10 @@ Given: `$ARGUMENTS` (a goal, roadmap item, spec path, or "mission N of <roadmap>
 - [ ] Every implement todo spec says "commit when acceptance criteria are met."
 - [ ] Fresh `mission_id` (no id reuse).
 - [ ] For full-flow: landed via Brain (`ch_create_mission_with_plan`), not just a local YAML.
+- [ ] Brain payload checked against `../mission-forge/references/mission-plan-schema.md`: `dod_gate`
+      uses `run`, `spec` has only its ten fields, `references` are typed objects inside `spec`, every
+      todo names its `repo_id`, every phase after the first has `depends_on`.
+- [ ] Plan read back with `ch_get_mission_plan` after landing; counts and specs verified.
 
 ## Examples
 

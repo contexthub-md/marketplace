@@ -26,11 +26,30 @@ Call `ch_get_mission` with the mission ID for full details including:
 
 ### Create a Mission
 
-Call `ch_create_mission` with:
+Three shapes -- pick one deliberately. They are mutually exclusive per mission: landing a plan by
+hand and then moving the mission to `approved` makes AgentCore regenerate over your plan.
+
+**1. Register only (no plan, no analysis).** `ch_create_mission` with:
 - `title`: What needs to be done
 - `description`: Details and acceptance criteria
 - `project_id`: Which project this belongs to
 - `priority`: low, medium, high, critical
+
+`pipeline_mode` defaults to `"open"` -- this registers a mission shell and calls no AgentCore.
+
+**2. No plan, let AgentCore analyse it.** Same call plus `pipeline_mode="plan"` (research + docs, stops
+at `review` for a human) or `pipeline_mode="process"` (continues into weaver-plan generation with no
+approve step). `project_id` is required. AgentCore's brief is `"# {title}\n\n{description}"` and
+nothing else, and its readiness gate needs 4 of 6 checks -- so pass `goals` and a description over 100
+characters or generation stops. Poll `ch_get_mission` for `weaver_plan_status`
+(`generating -> gathering -> structuring -> storing -> ready | failed`). To generate on a mission that
+already has content, call `ch_generate_mission_plan(mission_id)`.
+
+**3. Mission + full plan in one call.** `ch_create_mission_with_plan(title, phases, ...)` -- lands at
+status `execute` with the plan `ready`, deterministic, no AgentCore. Before writing the payload read
+`../mission-forge/references/mission-plan-schema.md`: the phase/todo/spec/dod_gate schema is not
+guessable from the docstring, unknown keys are dropped silently, and a validation error orphans a
+planless mission. For the full research-and-author pipeline use `/contexthub:mission-forge`.
 
 ### Update Progress
 
