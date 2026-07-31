@@ -151,8 +151,10 @@ safe -- only the keys you send are written, the rest of the phase/todo is untouc
 
 **Not editable directly:** `goal`, `acceptance_criteria`, `completion`, `dod_gate`, and on a todo
 `repo_id`, `repo_branch`, `task_type`, `ownership_type`, `metadata`. A wrong `dod_gate` means
-recreating the mission. A wrong `repo_id` can be salvaged by rewriting the phase's whole `todos`
-array with full todo dicts (each needs its `id` and `status`) -- otherwise recreate.
+recreating the mission. A wrong `repo_id` can be salvaged by sending the phase's whole `todos` array,
+which is rebuilt as `WeaverTodo(**t)` -- so every todo dict must carry at least `id`, `role`, and
+`description`, and anything you omit reverts to its default (`status` back to `pending`). Safer to
+recreate unless the phase is small.
 
 **Edit validates strictly where create did not.** The edit path builds `TodoSpec(**spec)`, so a bare
 string in `spec.references` returns HTTP 422 (`Input should be a valid dictionary or instance of
