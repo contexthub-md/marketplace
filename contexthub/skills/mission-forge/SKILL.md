@@ -145,8 +145,10 @@ still say what you wrote. Silent drops are invisible in the create response.
 **If it returns `PLAN_ERROR`:** the mission and its docs were already written before the plan was
 validated, so an orphan planless mission is now sitting at status `open`. Fix the payload, then reuse
 or delete that orphan -- do not retry blind and leave a trail of them. Repair a landed plan with
-`ch_edit_mission_plan` (partial `updates` are safe), but note it cannot touch `goal`,
-`acceptance_criteria`, `completion`, `dod_gate`, or a todo's `repo_id` -- see the schema reference.
+`ch_edit_mission_plan` (partial `updates` are safe): the gating fields including `goal`,
+`acceptance_criteria`, `completion`, `dod_gate`, and a todo's `repo_id` are all editable, and `action=`
+adds/deletes/reorders phases and todos. See the schema reference for the full surface and the 422/409
+it raises.
 
 **WARNING -- the modes are mutually exclusive per mission.** Never call `ch_create_mission_with_plan` and then move the same mission to `approved`. Setting status `approved` fires the AgentCore pipeline, which regenerates and OVERWRITES your hand-authored plan. If you authored the plan here, leave it at `execute` and run it. If you want AgentCore to generate the plan, use Mode 2 from the start and do NOT hand-author.
 
