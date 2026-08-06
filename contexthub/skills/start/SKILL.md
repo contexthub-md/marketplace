@@ -29,6 +29,10 @@ ContextHub is your project memory + code-intelligence layer: ~73 `ch_*` MCP tool
 | Flag an issue/bug/finding to track | `ch_create_memo` |
 | Attach/save a document to a mission or project | `/contexthub:context` (`ch_write_context`) |
 | Create / update / track a mission | `/contexthub:mission` |
+| Read a mission's phases/todos (the Weaver plan) | `ch_get_mission_plan` |
+| Fix a phase/todo in a landed plan, or add/delete/reorder one | `ch_edit_mission_plan` |
+| Pause/resume/kill a running plan, or approve the review gate | `ch_control_mission_plan` |
+| List/read a mission's attached resources, or build a todo's context bundle | `ch_get_mission_resources` |
 | Start dev on a mission (branch + index) | `/contexthub:mission-dev` |
 | Import a GitHub repo | `/contexthub:import` |
 | Write a runbook / deployment guide / SOP | `/contexthub:sop` or `/contexthub:sop-writer` |
@@ -57,6 +61,16 @@ When unsure of a content type or what's available, query live (`ch_list_context_
 - `ch_record_decision` -- a durable DECISION you'll want to recall later.
 - `ch_create_memo` -- a trackable ISSUE/finding/alert (has status, gets resolved).
 - `ch_write_context` -- a DOCUMENT (mission/project doc). Never use a memo as a doc; never raw-S3.
+
+**Weaver plan (structured phases/todos, not raw docs):**
+- `ch_get_mission_plan` -- READ the plan. Note the `revision` and pass it back as `expected_revision`.
+- `ch_edit_mission_plan` -- WRITE. `action="update"` (default) edits fields on a phase/todo;
+  `add_phase`, `delete_phase`, `reorder_phases`, `add_todo`, `delete_todo`, `reorder_todos` change
+  structure. Gating fields (`goal`, `dod_gate`, `completion`, a todo's `repo_id`) ARE editable.
+- `ch_control_mission_plan` -- RUN control: pause/resume/kill, approve/reject the review gate, batch
+  phase/todo status updates.
+- `ch_get_mission_resources` -- a mission's attached resources: list, read one, or assemble a todo's
+  context bundle (`token_budget`).
 
 **Show vs get:**
 - `ch_show_*` -- renders a zero-token UI panel (user wants to SEE it).

@@ -131,6 +131,11 @@ Discriminated on `check`. This union is duplicated byte-identically in three pla
 check; commit evidence is enforced separately by `report_todo_complete`. A `prose`-only goal-gated
 phase never auto-passes; it waits for a recorded verdict.
 
+**`file_exists` / `file_contains` MUST set `repo` on a multi-repo mission.** With `repo` unset the path
+resolves against the mission worktree ROOT, which holds only repo DIRECTORIES -- the check can never
+pass and the phase is unpassable by construction. This stuck two phases in a live mission. A `command`
+check in the same gate that does set `repo` will pass and mask it.
+
 ## Always read the plan back
 
 ```
@@ -142,19 +147,69 @@ the specs still contain what you wrote. This read-back is the only way to see si
 
 ## Repairing a landed plan
 
-`ch_edit_mission_plan(mission_id, phase_id[, todo_id], updates={...})`. A partial `updates` dict is
-safe -- only the keys you send are written, the rest of the phase/todo is untouched.
+`ch_edit_mission_plan(mission_id, phase_id[, todo_id], action="update", updates={...},
+status=..., expected_revision=...)`. A partial `updates` dict is safe -- only the keys you send are
+written, the rest of the phase/todo is untouched.
 
 | Editable on a phase | Editable on a todo |
 |---|---|
-| `name`, `order`, `blocked_by`, `config`, `todos`, `execution_target`, `approval_mode` | `role`, `description`, `file_paths`, `blocked_by`, `estimate`, `context_keys`, `spec`, `execution_target` |
+| `name`, `order`, `blocked_by`, `config`, `todos`, `execution_target`, `approval_mode`, `goal`, `acceptance_criteria`, `completion`, `dod_gate`, `exit_criteria`, `rollback_strategy`, `observability` | `role`, `description`, `file_paths`, `blocked_by`, `estimate`, `context_keys`, `spec`, `execution_target`, `repo_id`, `repo_branch`, `task_type`, `ownership_type` |
 
-**Not editable directly:** `goal`, `acceptance_criteria`, `completion`, `dod_gate`, and on a todo
-`repo_id`, `repo_branch`, `task_type`, `ownership_type`, `metadata`. A wrong `dod_gate` means
-recreating the mission. A wrong `repo_id` can be salvaged by sending the phase's whole `todos` array,
-which is rebuilt as `WeaverTodo(**t)` -- so every todo dict must carry at least `id`, `role`, and
-`description`, and anything you omit reverts to its default (`status` back to `pending`). Safer to
-recreate unless the phase is small.
+The gating fields are editable -- a wrong `dod_gate`, `goal`, or `repo_id` is a repair, not a reason to
+recreate the mission. **One exception:** `ownership_type` is a TODO field only. Brain's `WeaverPhase`
+model has no such field (weaver-hub's Rust `Phase` struct does), so there is nothing to set on a phase.
+
+Sending a phase's whole `todos` array still rebuilds every entry as `WeaverTodo(**t)`, so each dict
+must carry at least `id`, `role`, and `description` and anything you omit reverts to its default
+(`status` back to `pending`). There is no longer a reason to reach for it: edit the one todo, or
+reorder with the action below.
+
+## Structural actions
+
+`action` selects the operation. It defaults to `"update"`, which is byte-identical to the old
+field-edit behaviour -- existing callers are unaffected.
+
+| action | what it does |
+|---|---|
+| `update` (default) | writes `updates` onto the phase, or onto the todo when `todo_id` is given |
+| `add_phase` / `add_todo` | appends a new phase, or a todo to `phase_id` |
+| `delete_phase` / `delete_todo` | removes one |
+| `reorder_phases` / `reorder_todos` | rewrites the order from an id list |
+
+Generated ids come off a persisted high-water mark, never `len(array)`, so a deleted id is never
+reused. Ids match `^P\d+$` (phase) and `^P\d+\.\d+$` (todo) -- weaver-hub's `sync_plan_status` git
+scan depends on that shape.
+
+## What the edit path rejects
+
+- **422 on a malformed `dod_gate`**, and nothing is persisted. The command check's field is `run`
+  here too; `command` is a 422.
+- **422 on `completion: "goal_gated"` when that would leave an EMPTY `dod_gate`.** An empty gate can
+  never pass, so the phase could never complete -- and silently downgrading it to `task_list` would
+  make the phase read COMPLETE with its checks never run (a phantom completion).
+- Switching a phase `goal_gated` -> `task_list` **RETAINS** `dod_gate` (inert while `task_list`).
+  Nothing is destroyed.
+- **422 listing the valid values** on an unknown `completion` (`task_list|goal_gated`), `task_type`
+  (`standard|weaved`), or `ownership_type` (`agent|agent_human|human`).
+- **422 on a reorder list that is not a COMPLETE permutation** of the current ids -- omitting an id
+  does not delete it, the whole call is rejected.
+- **409 NAMING the blocking referent** on a delete that would leave a dangling
+  `blocked_by`/`depends_on` edge. It never cascades: a dangling edge is dropped silently at both ends
+  (Brain sanitises on every construction, weaver-hub's loader strips unknown edges on load), so a
+  cascade would delete work nobody asked to delete.
+- **409 on deleting a Running phase or an `in_progress` todo.** Stop it first.
+- Deleting the **last** todo in a phase IS allowed -- the phase completes on the next pass rather than
+  becoming uncompletable.
+
+## `expected_revision` -- optimistic concurrency
+
+Pass the `revision` you read from `ch_get_mission_plan` and a stale write is rejected with 409 instead
+of clobbering a concurrent writer. Omit it and the write is last-write-wins.
+
+It is honoured on the phase/todo field PUTs and on every structural action, but the **status-only path
+is deliberately UNGUARDED** -- Weaver persists its own run record and holds no revision. Passing
+`expected_revision` together with a status-only update returns a clear validation error rather than
+silently ignoring the guard.
 
 **Edit validates strictly where create did not.** The edit path builds `TodoSpec(**spec)`, so a bare
 string in `spec.references` returns HTTP 422 (`Input should be a valid dictionary or instance of
