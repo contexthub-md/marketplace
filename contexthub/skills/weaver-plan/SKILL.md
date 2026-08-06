@@ -169,8 +169,9 @@ phases:
 ### Brain-landed (`ch_create_mission_with_plan`)
 
 **Read `../mission-forge/references/mission-plan-schema.md` before writing the payload.** It is the
-code-verified field list for phases, todos, `spec`, `dod_gate`, and `ch_edit_mission_plan`, plus the
-silent-drop behaviours you cannot see from the response. The local YAML above and the Brain payload
+code-verified field list for phases, todos, `spec`, and `dod_gate`, the `ch_edit_mission_plan` repair
+surface (editable fields, structural `action`s, `expected_revision`, and every 422/409 it raises), plus
+the silent-drop behaviours you cannot see from the response. The local YAML above and the Brain payload
 are NOT the same shape -- most notably the machine checks live in `dod_gate` (Brain) rather than
 inline in `acceptance_criteria` (which is prose-only on the Brain side).
 
@@ -185,6 +186,12 @@ Traps that cost a mission each: `dod_gate` command is `{"check": "command", "run
 as the field name fails validation, and the failure orphans an already-created planless mission. Phase
 ids are assigned `P{n}` by position, so any `id` you pass is ignored. A todo without `repo_id`
 silently inherits the project's FIRST linked repo.
+
+**A `file_exists`/`file_contains` check MUST set `repo` when the mission owns more than one repo.**
+With `repo` unset the path resolves against the mission worktree ROOT, where only repo DIRECTORIES
+live -- the check can never pass, so the phase is unpassable by construction. This stalled two phases
+in a live mission, and it hides well: a `command` check in the same gate WITH `repo` set passes and
+masks the broken one.
 
 ## Execution model the plan depends on (so author to fit it)
 
@@ -219,8 +226,13 @@ Given: `$ARGUMENTS` (a goal, roadmap item, spec path, or "mission N of <roadmap>
 6. **Read the plan back before declaring it landed.** `ch_get_mission_plan(mission_id, detail="full")`
    -- verify phase/todo counts, that each phase carries the `blocked_by` you intended, and that the
    specs still hold their content. Repair in place with `ch_edit_mission_plan` (partial `updates` are
-   safe), but it cannot touch `goal`, `acceptance_criteria`, `completion`, `dod_gate`, or a todo's
-   `repo_id` -- those mean recreating the mission.
+   safe): `goal`, `acceptance_criteria`, `completion`, `dod_gate`, `exit_criteria`,
+   `rollback_strategy`, `observability` on a phase and `repo_id`, `repo_branch`, `task_type`,
+   `ownership_type` on a todo are all editable, so a wrong gate is a repair, not a recreate. Structure
+   too, via `action=`: `add_phase`, `delete_phase`, `reorder_phases`, `add_todo`, `delete_todo`,
+   `reorder_todos` (`action` defaults to `update`). Pass `expected_revision` (the `revision` you just
+   read) so a concurrent writer cannot be clobbered -- honoured on field PUTs and every structural
+   action, but NOT on the status-only path, where passing it is a validation error.
 7. **Record the decision.** `ch_record_decision(mission_id, decision_type="process")` capturing why
    the plan is shaped this way, so the dogfood loop accrues memory.
 
@@ -238,6 +250,7 @@ Given: `$ARGUMENTS` (a goal, roadmap item, spec path, or "mission N of <roadmap>
 - [ ] Brain payload checked against `../mission-forge/references/mission-plan-schema.md`: `dod_gate`
       uses `run`, `spec` has only its ten fields, `references` are typed objects inside `spec`, every
       todo names its `repo_id`, every phase after the first has `depends_on`.
+- [ ] Every `file_exists`/`file_contains` check in a `dod_gate` names its `repo` (multi-repo mission).
 - [ ] Plan read back with `ch_get_mission_plan` after landing; counts and specs verified.
 
 ## Examples
