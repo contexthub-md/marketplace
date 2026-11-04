@@ -19,8 +19,13 @@ Given: "$ARGUMENTS" (the change you are about to make)
 
 List the files and folders you expect to touch, as `<owner>/<repo>:<path>`.
 
-- When a code result (`ch_ocxp_*`) includes governing decisions, use them: each entry names the ADR, the clause id, its title and short decision text, how well it matched, and a follow-up call. A "shown earlier" id means you already saw that clause in this session. A proposed-only count means non-binding proposals exist.
-- When the result has no such field, or you have not read the files yet, call `ch_list_adrs` with `governs=["<owner>/<repo>:<path>", ...]` (a folder path covers everything under it). Use `tier="L2"` to get the clause list with status and implementation state.
+- When a code result carries a `governing_decisions` field, use it. Tools that can carry it: `ch_ocxp_route`, `ch_ocxp_search`, `ch_ocxp_query`, `ch_ocxp_entity`, `ch_ocxp_zoom`, `ch_ocxp_references`, `ch_ocxp_communities`, `ch_ocxp_find_file`, `ch_ocxp_grep` and `ch_ocxp_file_read`. Keys:
+  - `decisions`: accepted clauses that govern files in the result, closest match first (at most three with full text). Each has `clause` (for example "ADR-0001 D2"), `adr_id`, `title`, a one-sentence `decision`, the covered `path`, and `match` (`symbol`, `file` or `folder`: how closely the anchor covers it).
+  - `read`: the call to read the whole ADR, `ch_get_adr(adr_id=<adr_id>, tier='L2')`.
+  - `shown_earlier`: clauses listed by id only, because you already saw their text this session. They still bind you; do not treat them as gone.
+  - `proposed_clauses`: a count of proposed clauses on these files. Proposals are not binding; ignore them unless the user asks.
+  - `more` and `more_hint`: the block was truncated and `more` clauses are not shown. Run the `ch_list_adrs(governs=[...])` call in `more_hint` to see them all before editing.
+- When the result has no `governing_decisions` field (nothing governs, or the lookup was skipped), or you have not read the files yet, call `ch_list_adrs` with `governs=["<owner>/<repo>:<path>", ...]` (a folder path covers everything under it). Use `tier="L2"` to get the clause list with status and implementation state.
 
 Only accepted clauses on non-superseded ADRs bind you. `binding=true` on an ADR means at least one clause is accepted: check each clause status, since the rest may still be proposed.
 
