@@ -17,7 +17,7 @@ Given: "$ARGUMENTS" (the change you are about to make)
 
 ### 1. Find the governing clauses
 
-List the files and folders you expect to touch, as `<owner>/<repo>:<path>`.
+List the files and folders you expect to touch, as `<owner>/<repo>:<path>` with the repo-root git path (`backend/api/...`).
 
 - When a code result carries a `governing_decisions` field, use it. Tools that can carry it: `ch_ocxp_route`, `ch_ocxp_search`, `ch_ocxp_query`, `ch_ocxp_entity`, `ch_ocxp_zoom`, `ch_ocxp_references`, `ch_ocxp_communities`, `ch_ocxp_find_file`, `ch_ocxp_grep` and `ch_ocxp_file_read`. Keys:
   - `decisions`: accepted clauses that govern files in the result, closest match first (at most three with full text). Each has `clause` (for example "ADR-0001 D2"), `adr_id`, `title`, a one-sentence `decision`, the covered `path`, and `match` (`symbol`, `file` or `folder`: how closely the anchor covers it).
