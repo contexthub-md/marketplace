@@ -25,7 +25,10 @@ ContextHub is your project memory + code-intelligence layer: ~73 `ch_*` MCP tool
 | Search OUR project's reference docs (indexed library/framework repos) | `/contexthub:kb` |
 | Multi-source research (web + external library docs + KB) | `/contexthub:research` |
 | Recall a past decision ("what did we decide about X?") | `ch_search_memory` |
-| Persist a decision / architectural choice | `ch_record_decision` |
+| Persist a session decision / working note you'll want to recall | `ch_record_decision` |
+| Check which accepted architecture decisions (ADRs) govern files before editing | `/contexthub:adr-follow` |
+| Record an architectural choice as a proposed ADR (a human accepts it) | `/contexthub:adr-capture` |
+| Fix ADR anchors after moving, renaming or deleting governed code | `/contexthub:adr-anchors` |
 | Flag an issue/bug/finding to track | `ch_create_memo` |
 | Attach/save a document to a mission or project | `/contexthub:context` (`ch_write_context`) |
 | Create / update / track a mission | `/contexthub:mission` |
@@ -58,7 +61,7 @@ When unsure of a content type or what's available, query live (`ch_list_context_
 - Always `ch_ocxp_warmup` first; OCXP needs an active project UUID (`ch_set_project`).
 
 **Writing things down (3 that sound alike):**
-- `ch_record_decision` -- a durable DECISION you'll want to recall later.
+- `ch_record_decision` -- a durable session DECISION or note you'll want to recall later. Architectural decisions with lasting effect go to ADRs instead (`/contexthub:adr-capture`, proposed only; a human accepts).
 - `ch_create_memo` -- a trackable ISSUE/finding/alert (has status, gets resolved).
 - `ch_write_context` -- a DOCUMENT (mission/project doc). Never use a memo as a doc; never raw-S3.
 

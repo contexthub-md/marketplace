@@ -29,6 +29,11 @@ This repository has **two faces**:
 - `contexthub:plan` -- plan features/refactors with code graph intelligence and validation
 - `contexthub:branch-search` -- index and search a specific Git branch
 
+*Architecture decisions (ADRs)*
+- `contexthub:adr-follow` -- find the accepted ADR clauses governing files before editing; stop on conflict; cite clauses when done
+- `contexthub:adr-capture` -- propose an ADR for an architectural decision made during work (a human accepts it)
+- `contexthub:adr-anchors` -- keep ADR governs anchors accurate when code moves
+
 *Context, docs & knowledge*
 - `contexthub:context` -- read/write/list/delete documents on any context type (mission/project/SOP docs)
 - `contexthub:discover` -- general semantic search / RAG over the project knowledge base
@@ -189,7 +194,8 @@ Creating a mission auto-creates `mission/<id>` branches on the project's code re
 | Understand the codebase | `/contexthub:explore` | `ch_ocxp_warmup`, `ch_ocxp_search` |
 | Plan a change | `/contexthub:plan` | `ch_ocxp_plan` |
 | Recall a past decision | -- | `ch_search_memory` |
-| Save a decision | -- | `ch_record_decision` |
+| Save a session decision | -- | `ch_record_decision` |
+| Follow / propose architecture decisions | `/contexthub:adr-follow`, `/contexthub:adr-capture` | `ch_list_adrs`, `ch_create_adr` |
 | Attach a doc to a mission/project | `/contexthub:context` | `ch_write_context` |
 | Search our docs / libraries / web | `/contexthub:kb`, `/contexthub:research` | `ch_discover_context` |
 | Resume previous work | `/contexthub:resume` | `ch_list_sessions`, `ch_get_session_messages` |
