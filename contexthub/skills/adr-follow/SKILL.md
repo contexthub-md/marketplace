@@ -42,7 +42,9 @@ Stop. Do not edit against it, and do not look for a workaround that keeps the le
 - which clause (`ADR-<n> D<k>`, title) and which part of the task conflicts,
 - the two ways forward: (a) change the decision, by proposing an amending or superseding ADR (see `/contexthub:adr-capture`; `ch_create_adr` or `ch_update_adr` action `propose_clause` with a `supersedes` or `amends` link), or (b) a one-off exception, which only the user can grant as a waiver on the ContextHub dashboard.
 
-Accept, reject and waive are human-only actions; MCP callers are refused. Never try them. Continue only after the user confirms the clause was changed or waived, or narrows the task so it complies.
+Change lifecycle for an accepted clause: the meaning changes, so a superseding clause (you propose it; never edit in place); a wording fix with the same meaning, so an erratum; one time-boxed exception, so a waiver with an end date; it no longer applies, so retire. Erratum, waiver and retire are human dashboard verbs.
+
+Accept, reject, waive, erratum and retire are human-only actions; MCP callers are refused. Never try them. Continue only after the user confirms the clause was changed or waived, or narrows the task so it complies.
 
 ### 4. When you finish
 
@@ -51,7 +53,7 @@ Cite the clauses you respected in the PR description or final summary: `Respects
 ## Rules
 
 - Accepted clauses are binding; proposed ones are not. Never describe a proposed clause as a rule.
-- Never accept, reject or waive anything; ask the human to use the dashboard.
+- Never accept, reject, waive, correct or retire anything; ask the human to use the dashboard.
 - A clause's `implementation` state ("decided, not implemented") does not weaken it: it still binds new work.
 - Look up by file path, not by guessing ADR titles.
 
