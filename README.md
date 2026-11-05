@@ -204,7 +204,11 @@ Tip: when in doubt about which tool fits, call `ch_get_memory_context` first to 
 
 ## Configuration
 
-- **Server URL** -- defaults to `https://mcp.contexthub.md`. Override with the `CONTEXTHUB_API_URL` environment variable (the MCP endpoint is `{CONTEXTHUB_API_URL}/mcp`).
+- **Server URL** -- defaults to `https://mcp.contexthub.md/mcp`. The endpoint is `{CONTEXTHUB_API_URL}{CONTEXTHUB_MCP_PATH}`:
+  `CONTEXTHUB_API_URL` sets the host (default `https://mcp.contexthub.md`) and `CONTEXTHUB_MCP_PATH` sets the path
+  (default `/mcp`). Set both when a deployment needs an exact path, for example a trailing slash:
+  `CONTEXTHUB_API_URL=https://dev-mcp.contexthub.md` and `CONTEXTHUB_MCP_PATH=/mcp/`. In Claude Code, put them in the
+  `env` block of `.claude/settings.local.json` so they survive plugin updates.
 - **Authentication** -- Cognito OAuth; a browser login is triggered on first connect for every client.
 - **Tools work everywhere; skills install per surface.** The `ch_*` tools work on any MCP client. The skills run natively in Claude Code, and can be installed manually on Cline and Claude.ai (see [Using the skills outside Claude Code](#using-the-skills-outside-claude-code)); ChatGPT is tools-only. Agents are Claude Code only.
 
