@@ -21,29 +21,42 @@ Pick exactly one result:
 
 | Result | When |
 |---|---|
-| PROPOSE | The choice is architectural (hard to reverse, crosses modules, or fixes a pattern others must follow), at least two real options existed, a reason was stated, and no ADR covers it. |
+| PROPOSE | All three gate answers are yes: (1) real alternatives existed and one was picked for a stated reason, (2) it constrains future work beyond this PR (hard to reverse, crosses modules, or fixes a pattern others must follow), (3) someone could plausibly break it without being told. And no ADR covers it. |
 | LINK_EXISTING | An accepted or proposed ADR already records it, or the work only applies it. Name the ADR and clause. |
-| NONE | A local implementation choice, a one-off fix, a style preference, an unverified preference, or a choice with no stated reason. |
+| NONE | Any gate answer is no: a local implementation choice, a one-off fix, a style preference, an unverified preference, or a choice with no stated reason. NONE is the default. |
+
+Where a NONE goes instead:
+
+| What it is | Where |
+|---|---|
+| How one piece of code works | code comment or docstring |
+| A rule a test already explains | the test |
+| A procedure (deploy, release, migration) | SOP |
+| A temporary state (freeze, workaround) | memo with an end date |
+| A one-off choice inside a task | `ch_record_decision` |
+| A config value | config, with a comment |
 
 A choice that contradicts an accepted clause is PROPOSE as a superseding or amending record, never an edit around it (see `/contexthub:adr-follow`). If the clause it contradicts is still `proposed`, link with `amends` instead (or edit/withdraw that clause when you own it): `supersedes` only targets accepted clauses. Propose at most one or two ADRs per PR or task; split a bundle of decisions into separate ADRs only when each meets the PROPOSE bar.
 
 ### 2. Check for an existing ADR first
 
-Call `ch_list_adrs` with `governs=["<owner>/<repo>:<path>"]` for the files the decision constrains, and `focus="<keywords>"` for the topic. Proposed ADRs count too (the default status filter includes them; a proposed ADR that covers the choice is LINK_EXISTING). Read the hits at `tier="L2"`. If one covers it, the result is LINK_EXISTING: tell the user and stop. If the user wants to extend an existing ADR, use `ch_update_adr` with `action="propose_clause"` instead of a new ADR.
+Call `ch_list_adrs` with `governs=["<owner>/<repo>:<path>"]` for the files the decision constrains, and `focus="<keywords>"` for the topic. Proposed ADRs count too (the default status filter includes them; a proposed ADR that covers the choice is LINK_EXISTING). Read the hits at `tier="L2"`. If one covers it, the result is LINK_EXISTING: tell the user and stop. If the rule is new but the area has an ADR, prefer `ch_update_adr` with `action="propose_clause"` over a new ADR. One ADR per decision area, not per rule: past about 7 clauses split by area, and merge two ADRs that govern the same paths for the same topic.
 
-### 3. Create the proposed ADR
+### 3. Sweep, then create the proposed ADR
+
+Before writing, sweep the feature. List every non-test file it added or changed (source, Terraform, IAM, image build, UI, config) and map each to a clause or an explicit out-of-scope line. A file with neither is a missing clause or a missing decision. Look outside the call path too: Terraform, IAM, image and settings-validation choices are decisions.
 
 Call `ch_create_adr`:
 
 - `title`: a verb phrase. `summary`: one or two sentences, what was decided and why.
-- `context`: the problem, the trigger and why now. `rationale`: why this option, including the strongest counter-argument.
+- `context`: the problem, the trigger and why now. `rationale`: why this option, including the strongest counter-argument, and the three gate answers.
 - `decisions`: the clauses, one rule each, in active voice ("We will keep run state in one DynamoDB table"). Per clause: `title` (short, imperative, 3-120 chars, no trailing period), `text`, `source_ref`, `decided_on` and `governs`.
 - `source_ref`: where it was decided, as `pr:owner/repo#n`, `doc:<repo>/<path>` or `mission:<id>`. A decision made in chat or from memory: cite the date and who decided, for example `session 2026-11-05, decided by <name>`.
 - `decided_on` (YYYY-MM-DD): the date the clause text was decided. If a later commit changed the rule, use that later date and cite it in `source_ref`. Get the date from the time tool, never from memory.
 - `governs` anchors use repo-root git paths: `"<owner>/<repo>:<path>"`, such as `owner/repo:backend/api/features/x/y.py`, with `#symbol` for a function or class, or a folder path to cover everything under it. Index results may show a shorter sub-index path (`features/x/y.py`); do not copy it. Call `ch_ocxp_file_exists` with the full git path and check `exists=true`. `ch_ocxp_find_file` globs can miss a file that `file_exists` finds. Never invent a path.
 - Check each `#symbol` with `ch_ocxp_grep` for the `def` or `class` in that file. After create, `anchors[].state` must be `resolved`.
-- `options`: at least two, one chosen. `pros` and `cons` are lists of strings, never one string. Also `consequences` (list of strings, good and bad).
-- Per clause, optional: `verification` (a list of strings; prefer typed checks such as `file_exists: <repo>:<path>`, `symbol_exists: <repo>:<path> :: Name`, `grep_present: ...`, as seen on existing ADRs), `confidence` (low|medium|high) and `revisit_when` (conditions, not dates).
+- `options`: at least two, one chosen. Take rejected alternatives and variants from plan docs and handoffs, not only from the code. `pros` and `cons` are lists of strings, never one string. Also `consequences` (list of strings, good and bad).
+- Per clause, set `verification` (a list of strings): name an existing test as `test_exists: <owner/repo>:<test path> :: <test name>` (proves the test is present and refers to governed code, not that it passes), or a typed check such as `file_exists: <repo>:<path>`, `symbol_exists: <repo>:<path> :: Name`, `grep_present: ...`, as seen on existing ADRs. A clause with no check can only be confirmed by a person; keep those rare. Set `extra.reversibility` (easy|hard, ADR level) when the evidence supports it. Optional: `confidence` (low|medium|high) and `revisit_when` (conditions, not dates).
 - `links` for related ADRs: `{clause: "D1", type, target: "ADR-0007#D2"}` with type `supersedes` (target must be an ACCEPTED clause, otherwise completeness reports a blocking finding), `amends` (use for proposed targets), `relates` or `depends_on`.
 - `request_id`: a stable key so a retry returns the same ADR.
 
@@ -74,6 +87,8 @@ Minimal valid call:
 ```
 
 Leave a field out when the evidence does not support it. Do not invent ratings, costs, owners or confidence.
+
+Never write a negative ("X never does Y") whose only evidence is absent code. If a source calls it open, deferred or a spike limit, record it as DEFERRED (in a `Deferred:` line under `consequences`, with the trigger for deciding) or rate it NONE with the open question, and set `confidence` low. Put deferred lists from plan docs there too. An absence-based clause is never PROPOSE on its own.
 
 ### 4. Read the result and check completeness
 
