@@ -2,7 +2,7 @@
   "mcpServers": {
     "contexthub": {
       "type": "http",
-      "url": "${CONTEXTHUB_API_URL:-https://mcp.contexthub.md}/mcp"
+      "url": "${CONTEXTHUB_API_URL:-https://mcp.contexthub.md}${CONTEXTHUB_MCP_PATH:-/mcp}"
     }
   }
 }
