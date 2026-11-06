@@ -196,7 +196,7 @@ Creating a mission auto-creates `mission/<id>` branches on the project's code re
 | Plan a change | `/contexthub:plan` | `ch_ocxp_plan` |
 | Recall a past decision | -- | `ch_search_memory` |
 | Save a session decision | -- | `ch_record_decision` |
-| Follow / propose architecture decisions | `/contexthub:adr-follow`, `/contexthub:adr-capture` | `ch_list_adrs`, `ch_create_adr` |
+| Follow / propose architecture decisions | `/contexthub:adr-follow`, `/contexthub:adr-capture`, `/contexthub:adr-author` | `ch_list_adrs`, `ch_create_adr` |
 | Attach a doc to a mission/project | `/contexthub:context` | `ch_write_context` |
 | Search our docs / libraries / web | `/contexthub:kb`, `/contexthub:research` | `ch_discover_context` |
 | Resume previous work | `/contexthub:resume` | `ch_list_sessions`, `ch_get_session_messages` |
