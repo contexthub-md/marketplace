@@ -8,7 +8,7 @@
     {
       "name": "contexthub",
       "description": "ContextHub -- project management, missions, context discovery, code intelligence (OCXP), and knowledge base tools",
-      "version": "1.5.3",
+      "version": "1.5.4",
       "source": "./contexthub"
     }
   ]

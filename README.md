@@ -32,6 +32,7 @@ This repository has **two faces**:
 *Architecture decisions (ADRs)*
 - `contexthub:adr-follow` -- find the accepted ADR clauses governing files before editing; stop on conflict; cite clauses when done
 - `contexthub:adr-capture` -- propose an ADR for an architectural decision made during work (a human accepts it)
+- `contexthub:adr-author` -- author a complete proposed ADR from an idea document, re-grounding every claim in the code index
 - `contexthub:adr-anchors` -- keep ADR governs anchors accurate when code moves
 
 *Context, docs & knowledge*
