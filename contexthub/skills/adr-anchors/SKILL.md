@@ -33,10 +33,10 @@ Anchors use repo-root git paths (`backend/api/...`, not the shorter sub-index pa
 
 ### 3. Apply the update
 
-Call `ch_update_adr` with `action="edit"`, `expected_rev` from `ch_get_adr`, and `changes={"decisions": [...]}` carrying each clause you change as `{id: "D<k>", ..., governs: [...]}` (keep the clause `id`; send the full clause fields from `ch_get_adr`). Accepted clause text is immutable; edits to `governs` anchors on an accepted clause may be refused. When Brain refuses the edit, do not work around it. Instead:
+Call `ch_update_adr` with `action="edit"`, `expected_rev` from `ch_get_adr`, and `changes={"decisions": [...]}` carrying each clause you change as `{id: "D<k>", ..., governs: [...]}` (keep the clause `id`; send the full clause fields from `ch_get_adr`). Use this for proposed clauses. On an accepted clause the text is immutable and changing `governs` is a human action: Brain refuses it for agents with 403 `human_verb_required`. Do not work around it. Instead:
 
 - add a note with `action="note"` (`text`: old path to new path, `ref`: the PR), and
-- tell the user which anchors need a human decision, or propose the clause again with `action="propose_clause"` and a `supersedes` link to the old clause (accepted clauses only; use `amends` for a proposed one) so the human can accept the corrected one.
+- tell the user which anchors need a human to apply the change on the dashboard, or propose the clause again with `action="propose_clause"` and a `supersedes` link to the old clause (accepted clauses only; use `amends` for a proposed one) so the human can accept the corrected one.
 
 On `409 STALE_REV`, re-read the ADR and retry once.
 
