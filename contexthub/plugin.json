@@ -25,6 +25,9 @@
         "developerName": "ContextHub",
         "category": "Developer Tools",
         "websiteURL": "https://contexthub.md",
+        "supportURL": "https://contexthub.md/support",
+        "privacyPolicyURL": "https://contexthub.md/privacy",
+        "termsOfServiceURL": "https://contexthub.md/terms",
         "defaultPrompt": [
           "Connect to my ContextHub project and give me a status briefing",
           "Explore how this feature is implemented using the code graph",

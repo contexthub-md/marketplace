@@ -5,7 +5,25 @@
 # The ZIP holds the portable Agent Plugins package only: plugin.json, mcp.json
 # and skills/. Lifecycle hooks, Claude Code agents and the Claude manifests are
 # left out, because the portal rejects packages that contain hooks.
+#
+# Usage: build-chatgpt-plugin.sh [--target prod|dev]
+#   prod (default)  the submission package, MCP server https://mcp.contexthub.md/mcp
+#   dev             internal test package, MCP server https://dev-mcp.contexthub.md/mcp/
+#                   and display name "ContextHub (dev)". Never upload it for review.
 set -euo pipefail
+
+TARGET=prod
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --target) TARGET="${2:-}"; shift 2 ;;
+    --target=*) TARGET="${1#--target=}"; shift ;;
+    *) echo "Unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+case "$TARGET" in
+  prod|dev) ;;
+  *) echo "Unknown target: $TARGET (use prod or dev)" >&2; exit 2 ;;
+esac
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PLUGIN="$ROOT/contexthub"
@@ -65,10 +83,37 @@ if errors:
     sys.exit(1)
 PY
 
-OUT="$DIST/contexthub-chatgpt-plugin-$PORTABLE_VERSION.zip"
+SUFFIX=""
+[ "$TARGET" = dev ] && SUFFIX="-dev"
+OUT="$DIST/contexthub-chatgpt-plugin-$PORTABLE_VERSION$SUFFIX.zip"
 mkdir -p "$DIST"
 rm -f "$OUT"
+
+STAGE="$(mktemp -d)"
+trap 'rm -rf "$STAGE"' EXIT
 INCLUDE=(plugin.json mcp.json skills)
 [ -d "$PLUGIN/assets" ] && INCLUDE+=(assets)
-(cd "$PLUGIN" && zip -qr "$OUT" "${INCLUDE[@]}" -x '*.DS_Store')
-echo "Built $OUT"
+for item in "${INCLUDE[@]}"; do cp -R "$PLUGIN/$item" "$STAGE/"; done
+
+if [ "$TARGET" = dev ]; then
+  # The trailing slash matters: dev advertises its OAuth resource metadata for /mcp/.
+  python3 - "$STAGE" <<'PY'
+import json, pathlib, sys
+
+stage = pathlib.Path(sys.argv[1])
+
+mcp_path = stage / "mcp.json"
+mcp = json.loads(mcp_path.read_text())
+for server in mcp["mcpServers"].values():
+    server["url"] = "https://dev-mcp.contexthub.md/mcp/"
+mcp_path.write_text(json.dumps(mcp, indent=2) + "\n")
+
+manifest_path = stage / "plugin.json"
+manifest = json.loads(manifest_path.read_text())
+manifest["extensions"]["com.openai"]["interface"]["displayName"] = "ContextHub (dev)"
+manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+PY
+fi
+
+(cd "$STAGE" && zip -qr "$OUT" "${INCLUDE[@]}" -x '*.DS_Store')
+echo "Built $OUT ($TARGET)"

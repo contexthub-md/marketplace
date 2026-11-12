@@ -113,8 +113,11 @@ Custom MCP server availability depends on your ChatGPT plan and workspace policy
 **Skills + tools on the web** -- this needs the plugin published through the OpenAI plugin portal. Build the submission package:
 
 ```bash
-./scripts/build-chatgpt-plugin.sh      # writes dist/contexthub-chatgpt-plugin-<version>.zip
+./scripts/build-chatgpt-plugin.sh                # writes dist/contexthub-chatgpt-plugin-<version>.zip
+./scripts/build-chatgpt-plugin.sh --target dev   # internal test build, writes ...-<version>-dev.zip
 ```
+
+The `dev` build points at the dev MCP server and shows as "ContextHub (dev)". It is for internal testing only; never upload it for review.
 
 The ZIP holds `plugin.json`, `mcp.json` and `skills/` only. Hooks and agents are left out, because the portal rejects packages that contain lifecycle hooks. Upload it at [platform.openai.com/plugins](https://platform.openai.com/plugins) (**Upload new or existing plugin**). The script checks the manifest limits and lists the review fields that are still missing.
 
