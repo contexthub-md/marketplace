@@ -2,15 +2,17 @@
 
 ContextHub -- project memory, missions, context discovery, code intelligence (OCXP), and knowledge base tools for AI coding agents.
 
-This repository has **two faces**:
+This repository has **three faces**:
 
 1. **A Claude Code plugin** (`contexthub/`) -- skills, agents, and MCP tools. Claude Code installs the whole thing.
-2. **A remote MCP server** at `https://mcp.contexthub.md/mcp` -- any MCP-capable client (Claude.ai, ChatGPT, Cline, etc.) can connect to it for the `ch_*` tools.
+2. **A ChatGPT / Codex plugin** (the same `contexthub/` folder) -- skills plus the MCP connection, packaged in the portable Agent Plugins format (`plugin.json`, `mcp.json`, `skills/`).
+3. **A remote MCP server** at `https://mcp.contexthub.md/mcp` -- any MCP-capable client (Claude.ai, ChatGPT, Cline, etc.) can connect to it for the `ch_*` tools.
 
 > **What works where:**
 > - **Tools** (`ch_*` -- project memory, OCXP code intelligence, knowledge base, missions) work on **every** MCP client: Claude Code, Claude.ai, ChatGPT, Cline.
-> - **Skills** (the `SKILL.md` capability files in `contexthub/skills/`) work on **Claude Code** (native), **Cline** (drop the folders into its skills directory), and **Claude.ai** (upload as a zip). **Not ChatGPT** (no skill mechanism -- tools only).
-> - The **one-command plugin/marketplace install** (`claude plugin ...`) is **Claude Code only**. On Cline and Claude.ai you install the skill folders manually (see [Using the skills outside Claude Code](#using-the-skills-outside-claude-code)). Skills do not sync across apps -- install per surface.
+> - **Skills** (the `SKILL.md` capability files in `contexthub/skills/`) work on **Claude Code** (native), **ChatGPT and Codex** (through the plugin), **Cline** (drop the folders into its skills directory), and **Claude.ai** (upload as a zip).
+> - **Agents and hooks** are Claude Code only. The ChatGPT / Codex plugin ships skills and the MCP connection.
+> - The **one-command plugin/marketplace install** exists for **Claude Code** (`claude plugin ...`) and **Codex** (`codex plugin ...`). On Cline and Claude.ai you install the skill folders manually (see [Using the skills outside Claude Code](#using-the-skills-outside-claude-code)). Skills do not sync across apps -- install per surface.
 
 ## What you get
 
@@ -87,15 +89,34 @@ Connect to the remote MCP server as a custom connector:
 
 You get the `ch_*` tools. To also use the skills on Claude.ai, see [Using the skills outside Claude Code](#using-the-skills-outside-claude-code).
 
-### ChatGPT
+### ChatGPT and Codex (plugin: skills + tools)
 
-Add ContextHub as a remote MCP server / connector (Settings -> **Connectors**, or via Developer mode, depending on your plan and app version):
+The `contexthub/` folder is also a ChatGPT / Codex plugin. Which install path applies depends on the surface:
 
-1. Add a connector / remote MCP server.
+| Surface | How to install | What you get |
+|---------|----------------|--------------|
+| Codex CLI | `codex plugin marketplace add contexthub-md/marketplace` then `codex plugin add contexthub@marketplace` | skills + tools |
+| ChatGPT desktop app (Work mode, Codex) | Add this repo as a marketplace, then install `contexthub` from the Plugins Directory | skills + tools |
+| ChatGPT workspace (admin) | **Admin -> Plugins -> Add -> Import marketplace**, source `https://github.com/contexthub-md/marketplace` | skills + tools on desktop. ChatGPT labels GitHub-imported plugins that declare an MCP server "Desktop only"; they do not run on the web |
+| ChatGPT web and mobile | Published plugin from the plugin directory (see below), or a custom MCP server for tools only | skills + tools (published plugin), tools only (custom MCP server) |
+
+First use prompts the ContextHub OAuth login.
+
+**Tools only, on the web today** -- add the remote MCP server yourself:
+
+1. Open [chatgpt.com/plugins](https://chatgpt.com/plugins), select the plus button, then **Add custom MCP server**.
 2. URL: `https://mcp.contexthub.md/mcp`
-3. Authenticate via OAuth on first use.
+3. Authenticate via OAuth, then **Create as a plugin**.
 
-Remote MCP connector availability depends on your ChatGPT plan (Plus / Pro / Team / Enterprise / Business). You get the `ch_*` tools.
+Custom MCP server availability depends on your ChatGPT plan and workspace policy.
+
+**Skills + tools on the web** -- this needs the plugin published through the OpenAI plugin portal. Build the submission package:
+
+```bash
+./scripts/build-chatgpt-plugin.sh      # writes dist/contexthub-chatgpt-plugin-<version>.zip
+```
+
+The ZIP holds `plugin.json`, `mcp.json` and `skills/` only. Hooks and agents are left out, because the portal rejects packages that contain lifecycle hooks. Upload it at [platform.openai.com/plugins](https://platform.openai.com/plugins) (**Upload new or existing plugin**). The script checks the manifest limits and lists the review fields that are still missing.
 
 ### Cline
 
@@ -140,7 +161,7 @@ Cline auto-discovers them and activates the right one per request (via its `use_
 2. In Claude.ai: **Settings -> Features** -> upload the skill zip.
 3. Repeat per skill you want.
 
-> Skills do **not** sync across apps -- a skill installed in Claude Code is not automatically available in Cline or Claude.ai; install it on each surface. Exact menu labels vary by app version. ChatGPT has no skill mechanism (tools only).
+> Skills do **not** sync across apps -- a skill installed in Claude Code is not automatically available in Cline or Claude.ai; install it on each surface. Exact menu labels vary by app version.
 
 > Exact menu labels vary by app and version; the mechanism in every non-Claude-Code client is the same: add a **remote / custom MCP server** pointing at `https://mcp.contexthub.md/mcp`.
 
@@ -211,7 +232,7 @@ Tip: when in doubt about which tool fits, call `ch_get_memory_context` first to 
   `CONTEXTHUB_API_URL=https://dev-mcp.contexthub.md` and `CONTEXTHUB_MCP_PATH=/mcp/`. In Claude Code, put them in the
   `env` block of `.claude/settings.local.json` so they survive plugin updates.
 - **Authentication** -- Cognito OAuth; a browser login is triggered on first connect for every client.
-- **Tools work everywhere; skills install per surface.** The `ch_*` tools work on any MCP client. The skills run natively in Claude Code, and can be installed manually on Cline and Claude.ai (see [Using the skills outside Claude Code](#using-the-skills-outside-claude-code)); ChatGPT is tools-only. Agents are Claude Code only.
+- **Tools work everywhere; skills install per surface.** The `ch_*` tools work on any MCP client. The skills run natively in Claude Code, install with the plugin on ChatGPT and Codex, and can be installed manually on Cline and Claude.ai (see [Using the skills outside Claude Code](#using-the-skills-outside-claude-code)). Agents and hooks are Claude Code only.
 
 ## Verify the connection
 

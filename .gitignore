@@ -1,2 +1,5 @@
 # Git worktrees (local per developer, never committed)
 .worktrees/
+
+# Build output (scripts/build-chatgpt-plugin.sh)
+dist/

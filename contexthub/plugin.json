@@ -1,0 +1,36 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "contexthub",
+  "version": "1.6.0",
+  "description": "ContextHub -- project memory, missions, context discovery, code intelligence (OCXP), and knowledge base tools for development workflows",
+  "author": {
+    "name": "ContextHub"
+  },
+  "homepage": "https://contexthub.md",
+  "repository": "https://github.com/contexthub-md/marketplace",
+  "keywords": [
+    "contexthub",
+    "mcp",
+    "code-intelligence",
+    "project-memory",
+    "missions",
+    "adr"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "ContextHub",
+        "shortDescription": "Project memory and code intel",
+        "longDescription": "Connects ChatGPT and Codex to ContextHub: project memory and decisions, missions, architecture decision records, semantic search over your project knowledge base, and OCXP code graph intelligence. Bundles the ContextHub MCP server (ch_* tools) with skills that route each task to the right tool.",
+        "developerName": "ContextHub",
+        "category": "Developer Tools",
+        "websiteURL": "https://contexthub.md",
+        "defaultPrompt": [
+          "Connect to my ContextHub project and give me a status briefing",
+          "Explore how this feature is implemented using the code graph",
+          "Which architecture decisions govern the files I am about to change?"
+        ]
+      }
+    }
+  }
+}
