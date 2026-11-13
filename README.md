@@ -64,8 +64,8 @@ Installed with the plugin and active automatically. They close the learning loop
   agent's context before the edit (binding clauses with rule state, a trial-clause count). It maps
   only files inside a checkout of a project repo (a folder named like the repo); a worktree
   not named like the repo gets no injection (fail closed). It injects nothing outside a
-  ContextHub project, on any error or after a 3 second timeout, and never blocks. NotebookEdit is not covered. Needs the Brain `format=hook`
-  release.
+  ContextHub project, on any error or after a 3 second timeout, and never blocks. NotebookEdit is not covered. Needs the Brain
+  `format=hook` release.
 - **PostToolUseFailure** -- when a tool call fails, automatically calls `ch_log_outcome` to capture the failure so future sessions learn from it.
 
 The matching MCP tools work on every client: `ch_get_lessons` (read learned lessons) and `ch_log_outcome` (capture an error+fix, skill result, or prompt outcome). On non-Claude-Code clients, call them manually -- the hooks just automate them. Lessons are populated by AgentCore missions and by `ch_log_outcome`; extraction is asynchronous, so a freshly logged outcome surfaces in `ch_get_lessons` a few minutes later.

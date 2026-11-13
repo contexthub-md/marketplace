@@ -21,8 +21,8 @@ In Claude Code a PreToolUse hook adds the accepted clauses that govern a file to
 just before each Edit, Write or MultiEdit. When you see that "ContextHub: accepted ADR clauses
 govern ..." text, treat it as the result of this step for that file: the clauses bind you, the
 `BROKEN` line means do not add to that rule's violations, and trial clauses only warn. The hook
-maps only files inside a checkout of a project repo (a folder named like the repo, or the session
-working folder) and it fails open, so silence does not prove nothing governs: still do the lookup
+maps only files inside a checkout of a project repo (the folder above it is named like the repo)
+and it fails open, so silence does not prove nothing governs: still do the lookup
 below before planning a change. It does not cover NotebookEdit.
 
 List the files and folders you expect to touch, as `<owner>/<repo>:<path>` with the repo-root git path (`backend/api/...`).
