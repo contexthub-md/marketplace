@@ -59,7 +59,13 @@ Project and mission management, context discovery, document CRUD, knowledge base
 ### Hooks -- cross-session learning (Claude Code)
 Installed with the plugin and active automatically. They close the learning loop so the agent improves across sessions:
 - **SessionStart** -- reminds the agent to call `ch_get_lessons` (load error patterns, skill stats, and prompt effectiveness learned from prior runs) before substantial work.
-- **PreToolUse** (Edit, Write, MultiEdit, NotebookEdit) -- calls `ch_get_governing` with `format: "hook"` and the file path; when accepted ADR clauses govern the file, they are added to the agent's context before the edit (binding clauses with rule state, a trial-clause count). It injects nothing outside a ContextHub project, on any error or after a 3 second timeout, and never blocks. Needs the Brain `format=hook` release.
+- **PreToolUse** (Edit, Write, MultiEdit) -- calls `ch_get_governing` with `format: "hook"`, the
+  file path and the session `cwd`; when accepted ADR clauses govern the file, they are added to the
+  agent's context before the edit (binding clauses with rule state, a trial-clause count). It maps
+  only files inside a checkout of a project repo (a folder named like the repo, or the session
+  working folder). It injects nothing outside a ContextHub project, on any error or after a 3
+  second timeout, and never blocks. NotebookEdit is not covered. Needs the Brain `format=hook`
+  release.
 - **PostToolUseFailure** -- when a tool call fails, automatically calls `ch_log_outcome` to capture the failure so future sessions learn from it.
 
 The matching MCP tools work on every client: `ch_get_lessons` (read learned lessons) and `ch_log_outcome` (capture an error+fix, skill result, or prompt outcome). On non-Claude-Code clients, call them manually -- the hooks just automate them. Lessons are populated by AgentCore missions and by `ch_log_outcome`; extraction is asynchronous, so a freshly logged outcome surfaces in `ch_get_lessons` a few minutes later.

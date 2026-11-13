@@ -12,7 +12,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "mcp_tool",
@@ -20,7 +20,8 @@
             "tool": "ch_get_governing",
             "input": {
               "format": "hook",
-              "path": "${tool_input.file_path}"
+              "path": "${tool_input.file_path}",
+              "cwd": "${cwd}"
             },
             "timeout": 3,
             "statusMessage": "Checking governing ADRs"
