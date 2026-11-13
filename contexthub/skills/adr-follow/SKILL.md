@@ -17,6 +17,8 @@ Given: "$ARGUMENTS" (the change you are about to make)
 
 ### 1. Find the governing clauses
 
+In Claude Code a PreToolUse hook adds the accepted clauses that govern a file to your context just before each Edit, Write, MultiEdit or NotebookEdit. When you see that "ContextHub: accepted ADR clauses govern ..." text, treat it as the result of this step for that file: the clauses bind you, the `BROKEN` line means do not add to that rule's violations, and trial clauses only warn. Silence from the hook does not prove nothing governs (it fails open): still do the lookup below before planning a change.
+
 List the files and folders you expect to touch, as `<owner>/<repo>:<path>` with the repo-root git path (`backend/api/...`).
 
 - When a code result carries a `governing_decisions` field, use it. Tools that can carry it: `ch_ocxp_route`, `ch_ocxp_search`, `ch_ocxp_query`, `ch_ocxp_entity`, `ch_ocxp_zoom`, `ch_ocxp_references`, `ch_ocxp_communities`, `ch_ocxp_find_file`, `ch_ocxp_grep` and `ch_ocxp_file_read`. Keys:
