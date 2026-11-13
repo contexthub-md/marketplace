@@ -10,6 +10,24 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "mcp_tool",
+            "server": "plugin:contexthub:contexthub",
+            "tool": "ch_get_governing",
+            "input": {
+              "format": "hook",
+              "path": "${tool_input.file_path}"
+            },
+            "timeout": 3,
+            "statusMessage": "Checking governing ADRs"
+          }
+        ]
+      }
+    ],
     "PostToolUseFailure": [
       {
         "hooks": [
