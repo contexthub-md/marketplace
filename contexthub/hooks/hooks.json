@@ -20,8 +20,7 @@
             "tool": "ch_get_governing",
             "input": {
               "format": "hook",
-              "path": "${tool_input.file_path}",
-              "cwd": "${cwd}"
+              "path": "${tool_input.file_path}"
             },
             "timeout": 3,
             "statusMessage": "Checking governing ADRs"

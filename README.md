@@ -60,11 +60,11 @@ Project and mission management, context discovery, document CRUD, knowledge base
 Installed with the plugin and active automatically. They close the learning loop so the agent improves across sessions:
 - **SessionStart** -- reminds the agent to call `ch_get_lessons` (load error patterns, skill stats, and prompt effectiveness learned from prior runs) before substantial work.
 - **PreToolUse** (Edit, Write, MultiEdit) -- calls `ch_get_governing` with `format: "hook"`, the
-  file path and the session `cwd`; when accepted ADR clauses govern the file, they are added to the
+  file path; when accepted ADR clauses govern the file, they are added to the
   agent's context before the edit (binding clauses with rule state, a trial-clause count). It maps
-  only files inside a checkout of a project repo (a folder named like the repo, or the session
-  working folder). It injects nothing outside a ContextHub project, on any error or after a 3
-  second timeout, and never blocks. NotebookEdit is not covered. Needs the Brain `format=hook`
+  only files inside a checkout of a project repo (a folder named like the repo); a worktree
+  not named like the repo gets no injection (fail closed). It injects nothing outside a
+  ContextHub project, on any error or after a 3 second timeout, and never blocks. NotebookEdit is not covered. Needs the Brain `format=hook`
   release.
 - **PostToolUseFailure** -- when a tool call fails, automatically calls `ch_log_outcome` to capture the failure so future sessions learn from it.
 
