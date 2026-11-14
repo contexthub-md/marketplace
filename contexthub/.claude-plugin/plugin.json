@@ -1,7 +1,7 @@
 {
   "name": "contexthub",
   "description": "ContextHub Brain -- project management, missions, context discovery, and knowledge base tools for development workflows",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "author": {
     "name": "ContextHub"
   },
